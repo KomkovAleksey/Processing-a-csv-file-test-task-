@@ -49,6 +49,34 @@ def convert_str_to_int(value: str):
         return value
 
 
+def agrigate(data, column, operator_str, value):
+    """Perform aggregation (min, max, avg) on numeric column data."""
+    if operator_str == '=':
+        values_from_data = [
+            item[column] for item in data if column in item
+        ]
+        values_from_data_int = []
+        for num in values_from_data:
+            a = convert_str_to_int(num)
+            values_from_data_int.append(a)
+        if value == 'min':
+            return [dict.fromkeys([value], min(values_from_data_int))]
+
+        elif value == 'max':
+            return [dict.fromkeys([value], max(values_from_data_int))]
+
+        elif value == 'avg':
+            return [
+                dict.fromkeys(
+                    [value],
+                    sum(values_from_data_int) / len(values_from_data_int)
+                )]
+        else:
+            raise ValueError(f'{value} must be a func(min, max, avg)')
+    else:
+        raise ValueError(f'{operator_str} must be a "="')
+
+
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser(
@@ -62,6 +90,10 @@ if __name__ == '__main__':
     parser.add_argument(
         '--where',
         help='Filtering condition in the format "column=value"',
+    )
+    parser.add_argument(
+        '--aggregate',
+        help='Aggregation in the format "function=column"',
     )
 
     args = parser.parse_args()
@@ -89,6 +121,22 @@ if __name__ == '__main__':
             ))
         except Exception as e:
             print(f'Error in the filtering condition: {e}', file=sys.stderr)
+            sys.exit(1)
+
+    elif args.aggregate:
+        try:
+            column, operator_str, value, operator_func = (
+                parsed_string_from_terminal(args.aggregate)
+            )
+            result = agrigate(data, column, operator_str, value)
+            print(tabulate(
+                result,
+                headers='keys',
+                tablefmt='psql',
+            ))
+
+        except Exception as e:
+            print(f'Error in the aggregation condition: {e}', file=sys.stderr)
             sys.exit(1)
 
     else:
