@@ -49,7 +49,7 @@ def convert_str_to_int(value: str):
         return value
 
 
-def agrigate(data, column, operator_str, value):
+def agrigate(data, column: str, operator_str: str, value: str) -> list:
     """Perform aggregation (min, max, avg) on numeric column data."""
     if operator_str == '=':
         values_from_data = [
@@ -105,14 +105,14 @@ if __name__ == '__main__':
         sys.exit(1)
 
     if args.where:
-        column, operator_str, value, operator_func = (
-            parsed_string_from_terminal(args.where)
-        )
-        value = convert_str_to_int(value)
         try:
+            column, operator_str, value, operator_func = (
+                parsed_string_from_terminal(args.where)
+            )
+            value = convert_str_to_int(value)
             result = [
                 row for row in data
-                if operator_func(row.get(column), value)
+                if operator_func(convert_str_to_int(row.get(column, 0)), value)
             ]
             print(tabulate(
                 result,
