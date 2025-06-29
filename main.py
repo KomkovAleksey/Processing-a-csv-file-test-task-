@@ -8,5 +8,16 @@ def open_read_csv(csv_file_name: str) -> list:
         with open(csv_file_name, encoding='utf-8') as csvfile:
             reader = csv.DictReader(csvfile)
             return list(reader)
-    else:
-        raise FileNotFoundError('csv file not found!')
+    raise FileNotFoundError('csv file not found!')
+
+
+def parsed_string_from_terminal(parsed_string: str) -> tuple:
+    """Parses the string into (column, operator, value)."""
+    operators = ['=', '<', '>',]
+    for operator_str in operators:
+        if operator_str in parsed_string:
+            column, value = parsed_string.split(operator_str)
+            return column, operator_str, value
+    raise ValueError(
+        f'Invalid condition: {parsed_string} must contain "=", "<" or">"'
+    )
