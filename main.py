@@ -21,3 +21,20 @@ def parsed_string_from_terminal(parsed_string: str) -> tuple:
     raise ValueError(
         f'Invalid condition: {parsed_string} must contain "=", "<" or">"'
     )
+
+
+def convert_str_to_int(value: str):
+    """
+    Converts a string to a number (int/float),
+    if a string is made up of numbers,
+    otherwise returns a string.
+    """
+    try:
+        value = float(value)
+        if value.is_integer():
+            return int(value)
+        return value
+    except ValueError:
+        print(f'"{value}" is not a number')
+
+        return value
