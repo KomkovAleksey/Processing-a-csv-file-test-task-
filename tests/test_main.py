@@ -1,20 +1,20 @@
 import os
 import tempfile
-import sys
+import operator
 
 import pytest
 
 from main import (
     open_read_csv,
     parsed_string_from_terminal,
-    convert_str_to_int,
+    convert_str_to_int_or_float,
     agrigate,
 )
 
 
 def test_open_read_csv_file():
     """
-    Test for reading a temporary CSV file 
+    Test for reading a temporary CSV file
     with test_open_read_csv_file func.
     """
     temporary_csv_file = (
@@ -53,7 +53,49 @@ def test_open_read_csv_file_not_found():
 
 
 def test_parsed_string_from_terminal():
-    pass
+    """Test parsed_string_from_terminal func."""
+    test_cases = [
+        ('age=25', False),
+        ('salary<50000', False),
+        ('height>180', False),
+        ('age = 25', False),
+        ('name = John Doe', False),
+        ('age>=30', False),
+        ('score<=100', False),
+        ('name=', False),
+        ('=value', False),
+        ('user@name=john.doe', False),
+        ('price>$100', False),
+        ('age25', True),
+        ('age!25', True),
+        ('', True),
+        ('no_operator', True),
+    ]
+    expected_resuls = [
+        ('age', '=', '25', operator.eq),
+        ('salary', '<', '50000', operator.lt),
+        ('height', '>', '180', operator.gt),
+        ('age', '=', '25', operator.eq),
+        ('name', '=', 'John Doe', operator.eq),
+        ('age', '>', '=30', operator.gt),
+        ('score', '<', '=100', operator.lt),
+        ('name', '=', '', operator.eq),
+        ('', '=', 'value', operator.eq),
+        ('user@name', '=', 'john.doe',  operator.eq),
+        ('price', '>', '$100', operator.gt),
+
+    ]
+    results = []
+    for input_val, hass_error in test_cases:
+        if hass_error:
+            with pytest.raises(ValueError) as exc_info:
+                parsed_string_from_terminal(input_val)
+            assert 'must contain "=", "<" or">"' in str(exc_info.value)
+        else:
+            result = parsed_string_from_terminal(input_val)
+            results.append(result)
+
+    assert results == expected_resuls
 
 
 def test_convert_str_to_int(capsys):
@@ -77,7 +119,7 @@ def test_convert_str_to_int(capsys):
     expected_resuls = [3.4, 4, -4, -3.4, 42, 0.5, 5]
     results = []
     for input_val, hass_error in test_cases:
-        result = convert_str_to_int(input_val)
+        result = convert_str_to_int_or_float(input_val)
         if hass_error:
             captured = capsys.readouterr()
             assert captured.out == f'"{input_val}" is not a number\n'

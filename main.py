@@ -26,13 +26,18 @@ def parsed_string_from_terminal(parsed_string: str) -> tuple:
     for operator_str in operators:
         if operator_str in parsed_string:
             column, value = parsed_string.split(operator_str)
-            return column, operator_str, value, operators[operator_str]
+            return (
+                column.strip(' '),
+                operator_str,
+                value.strip(' '),
+                operators[operator_str]
+            )
     raise ValueError(
         f'Invalid condition: {parsed_string} must contain "=", "<" or">"'
     )
 
 
-def convert_str_to_int(value):
+def convert_str_to_int_or_float(value):
     """
     Converts a string to a number (int/float),
     if a string is made up of numbers,
@@ -55,7 +60,7 @@ def agrigate(data, column: str, operator_str: str, value: str) -> list:
         ]
         values_from_data_int = []
         for num in values_from_data:
-            a = convert_str_to_int(num)
+            a = convert_str_to_int_or_float(num)
             values_from_data_int.append(a)
         if value == 'min':
             return [dict.fromkeys([value], min(values_from_data_int))]
@@ -107,10 +112,13 @@ if __name__ == '__main__':
             column, operator_str, value, operator_func = (
                 parsed_string_from_terminal(args.where)
             )
-            value = convert_str_to_int(value)
+            value = convert_str_to_int_or_float(value)
             result = [
                 row for row in data
-                if operator_func(convert_str_to_int(row.get(column, 0)), value)
+                if operator_func(convert_str_to_int_or_float(
+                    row.get(column, 0)),
+                    value
+                )
             ]
             print(tabulate(
                 result,
