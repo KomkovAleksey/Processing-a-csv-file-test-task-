@@ -32,7 +32,7 @@ def parsed_string_from_terminal(parsed_string: str) -> tuple:
     )
 
 
-def convert_str_to_int(value: str):
+def convert_str_to_int(value):
     """
     Converts a string to a number (int/float),
     if a string is made up of numbers,
@@ -45,8 +45,6 @@ def convert_str_to_int(value: str):
         return value
     except ValueError:
         print(f'"{value}" is not a number')
-
-        return value
 
 
 def agrigate(data, column: str, operator_str: str, value: str) -> list:
