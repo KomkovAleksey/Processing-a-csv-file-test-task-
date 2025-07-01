@@ -116,7 +116,7 @@ def test_convert_str_to_int(capsys):
         ('12.34.56', True),
     ]
 
-    expected_resuls = [3.4, 4, -4, -3.4, 42, 0.5, 5]
+    expected_results = [3.4, 4, -4, -3.4, 42, 0.5, 5]
     results = []
     for input_val, hass_error in test_cases:
         result = convert_str_to_int_or_float(input_val)
@@ -125,8 +125,46 @@ def test_convert_str_to_int(capsys):
             assert captured.out == f'"{input_val}" is not a number\n'
         else:
             results.append(result)
-    assert results == expected_resuls
+    assert results == expected_results
 
 
 def test_agrigate():
-    pass
+    """Test agrigate func."""
+    test_data = [
+        {'rating': '7.7'},
+        {'rating': '6.7'},
+        {'rating': '7.8'},
+        {'rating': '8.2'},
+        {'rating': '7.6'},
+        {'rating': '8.0'},
+        {'rating': '7.6'},
+        {'rating': '7.6'},
+        {'rating': '6.2'},
+        {'rating': '5.3'},
+
+    ]
+
+    test_cases = [
+        (test_data, 'rating', '=', 'min', False),
+        (test_data, 'rating', '=', 'max', False),
+        (test_data, 'rating', '=', 'avg', False),
+
+        (test_data, 'rating', '<', 'max', True),
+        (test_data, 'rating', '=', 'sim', True),
+    ]
+
+    expected_resuls = [[{'min': 5.3}], [{'max': 8.2}], [{'avg': 7.3}]]
+    results = []
+    for data, column, operator_str, value, hass_error in test_cases:
+        if hass_error:
+            with pytest.raises(ValueError) as exc_info:
+                agrigate(data, column, operator_str, value)
+            if operator_str != '=':
+                assert 'must be a "="' in str(exc_info.value)
+            if value not in ['min', 'max', 'avg']:
+                assert 'must be a func' in str(exc_info.value)
+        else:
+            result = agrigate(data, column, operator_str, value)
+            results.append(result)
+
+    assert results == expected_resuls
