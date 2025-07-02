@@ -72,7 +72,10 @@ def agrigate(data, column: str, operator_str: str, value: str) -> list:
             return [
                 dict.fromkeys(
                     [value],
-                    round(sum(values_from_data_int) / len(values_from_data_int), 1)
+                    round(
+                        sum(values_from_data_int) / len(values_from_data_int),
+                        1
+                    )
                 )]
         else:
             raise ValueError(f'{value} must be a func(min, max, avg)')
